@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import api from './api/posts';
 import EditPost from './EditPost';
+import useWindowSize from './hooks/useWindowSize';
+import useAxiosFetch from './hooks/useAxiosFetch';
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -19,8 +21,15 @@ function App() {
   const [editTitle, setEditTitle] = useState('');
   const [editBody, setEditBody] = useState('');
   const navigate = useNavigate();
+  const { width } = useWindowSize();
 
+  const { data, fetchError, isLoading } = useAxiosFetch('http://localhost:3500/posts');
+ 
+  useEffect( () => {
+    setPosts(data);
+  },[data])
 
+/* 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -39,7 +48,7 @@ function App() {
     }
 
     fetchPosts();
-  }, [])
+  }, []) */
      
 
   useEffect(() => {
@@ -100,8 +109,9 @@ function App() {
       <Route path="/" element={<Layout
         search={search}
         setSearch={setSearch}
+        width={width}
       />}>
-        <Route index element={<Home posts={searchResults} />} />
+        <Route index element={<Home posts={searchResults} fetchError={fetchError} isLoading={isLoading} />} />
         <Route path="post">
           <Route index element={<NewPost
             handleSubmit={handleSubmit}
